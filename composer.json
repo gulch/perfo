@@ -1,0 +1,29 @@
+{
+    "name": "gulch/perfo",
+    "description": "Perfo - measure web app response performance",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Volodymyr Gulchuk",
+            "email": "volodymyr@gulchuk.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "ext-curl": "*",
+        "symfony/console": "^6.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Perfo\\": [
+                "src/"
+            ]
+        }
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}

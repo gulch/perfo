@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+// application.php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+use Perfo\Command\SingleCommand;
+
+$application = new Application('Perfo', '0.1');
+
+// ... register commands
+$application->add(new SingleCommand);
+
+$application->run();
