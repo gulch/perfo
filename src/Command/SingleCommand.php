@@ -18,7 +18,7 @@ class SingleCommand extends Command
             ->addArgument(
                 'url',
                 InputArgument::REQUIRED,
-                'Web Application URL',
+                'URL',
             );
     }
 
@@ -101,7 +101,7 @@ class SingleCommand extends Command
 
             $offset = $offset > 0 ? $offset : 1;
             
-            $output->writeln("<fg=blue>{$key}</>" . str_repeat('.', $offset) . $val);
+            $output->writeln("<fg=blue>{$key}</><fg=gray>" . str_repeat('.', $offset) . '</>' . $val);
         }
     }
 }
