@@ -34,8 +34,8 @@ class SingleCommand extends Command
         $ch = \curl_init();
 
         curl_setopt($ch, \CURLOPT_URL, $input->getArgument('url'));
-
-        curl_setopt($ch, \CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
 
         // this function is called by curl for each header received
         curl_setopt(
@@ -98,8 +98,13 @@ class SingleCommand extends Command
             $output->writeln('');
 
             if (true == is_array($headers['server-timing'])) {
-
-                // TODO: 
+                $parsed_timings = [];
+                foreach ($headers['server-timing'] as $st) {
+                    $parsed_timings = [
+                        ...$parsed_timings,
+                        $this->parseServerTiming($st),
+                    ];
+                }
             } else {
                 $this->outputServerTiming(
                     $this->parseServerTiming($headers['server-timing'] ?? ''),
@@ -181,12 +186,6 @@ class SingleCommand extends Command
 
             $timing['name'] = $params[0];
 
-            // no duration (dur) or description (desc)
-            /* if (1 === count($params)) {
-                $result_array[] = $timing;
-                continue;
-            } */
-
             for($i = 1, $c = count($params); $i < $c; ++$i)
             {
                 [$paramName, $paramValue] = explode('=', $params[$i]);
@@ -201,7 +200,6 @@ class SingleCommand extends Command
                 $timing[$paramName] = $paramValue;
 
             }
-
 
             $result_array[] = $timing;
         }
