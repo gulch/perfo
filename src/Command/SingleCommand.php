@@ -12,7 +12,7 @@ class SingleCommand extends Command
 {
     protected function configure(): void
     {
-        $this->setName('single')
+        $this->setName('one')
             ->setDescription('Single Request App Performance Measure')
             ->setHelp('This command allows you to send single request to web app...')
             ->addArgument(
