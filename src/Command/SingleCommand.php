@@ -5,8 +5,9 @@ namespace Perfo\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function curl_setopt, strlen, trim, count;
+use function curl_setopt, strlen, trim, count, explode, is_array;
 
 class SingleCommand extends Command
 {
@@ -19,6 +20,10 @@ class SingleCommand extends Command
                 'url',
                 InputArgument::REQUIRED,
                 'URL',
+            )->addOption(
+                'server-timing',
+                't',
+                InputOption::VALUE_NONE,
             );
     }
 
@@ -38,7 +43,7 @@ class SingleCommand extends Command
             \CURLOPT_HEADERFUNCTION,
             function ($curl, $header) use (&$headers) {
 
-                $header_arr = \explode(':', $header, 2);
+                $header_arr = explode(':', $header, 2);
 
                 // ignore headers with no value
                 if (count($header_arr) < 2) {
@@ -46,15 +51,20 @@ class SingleCommand extends Command
                 }
 
                 $key = \strtolower(trim($header_arr[0]));
+                $value = trim($header_arr[1]);
 
-                if (isset($headers[$key]))
-                {
-                    $headers[$key] = $headers[$key] . ' | ' . $header_arr[1];
+                if (isset($headers[$key])) {
+
+                    if (true === is_array($headers[$key])) {
+                        $headers[$key] = [$value, ...$headers[$key]];
+                    }
+
+                    $headers[$key] = [$value, $headers[$key]];
 
                     return strlen($header);
                 }
 
-                $headers[$key] = trim($header_arr[1]);
+                $headers[$key] = $value;
 
                 return strlen($header);
             }
@@ -82,6 +92,22 @@ class SingleCommand extends Command
         $output->writeln($this->getFormattedStr('TTFB', ($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000));
         $output->writeln($this->getFormattedStr('Data Transfer', ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000));
 
+
+        // Server-Timing
+        if ($input->getOption('server-timing')) {
+            $output->writeln('');
+
+            if (true == is_array($headers['server-timing'])) {
+
+                // TODO: 
+            } else {
+                $this->outputServerTiming(
+                    $this->parseServerTiming($headers['server-timing'] ?? ''),
+                    $output,
+                );
+            }
+        }
+
         return self::SUCCESS;
     }
 
@@ -100,8 +126,86 @@ class SingleCommand extends Command
             $offset = 40 - strlen($key);
 
             $offset = $offset > 0 ? $offset : 1;
-            
+
+            if (true === is_array($val)) {
+                $val = implode(' • ', $val);
+            }
+
             $output->writeln("<fg=blue>{$key}</><fg=gray>" . str_repeat('.', $offset) . '</>' . $val);
         }
+    }
+
+    private function outputServerTiming(array $items, OutputInterface $output): void
+    {
+        $output->writeln('<fg=gray>Server-Timing:</>');
+
+        if (0 === count($items)) {
+            $output->writeln('<fg=gray;bg=red>Server-Timing header not exists</>');
+            return;
+        }
+
+        foreach($items as $item) {
+
+            $string = "<fg=magenta>{$item['name']}</>";
+
+            $offset = 30 - strlen($item['name']);
+
+            $offset = $offset > 0 ? $offset : 1;
+
+            $string .= '<fg=gray>' . str_repeat('.', $offset) . '</>';
+
+            if(isset($item['dur'])) {
+                $string .= sprintf('%7.2f', $item['dur']);
+            }
+
+            if(isset($item['desc'])) {
+                $string .= '<fg=gray>' . str_repeat('.', 5) . '</><fg=magenta>'. $item['desc'] .'</>'; 
+            }
+
+            $output->writeln($string);
+        }
+    }
+
+    /* 
+     * parse Server-Timing header(s)
+     * https://www.w3.org/TR/server-timing
+     * 
+     * example -> Server-Timing: miss,db;dur=53,app;dur=47.2,cache;desc="Cache Read";dur=23.2
+     */
+    private function parseServerTiming(string $header): array
+    {
+        $result_array = [];
+
+        foreach (explode(',', $header) as $item) {
+            $params = explode(';', $item);
+
+            $timing['name'] = $params[0];
+
+            // no duration (dur) or description (desc)
+            /* if (1 === count($params)) {
+                $result_array[] = $timing;
+                continue;
+            } */
+
+            for($i = 1, $c = count($params); $i < $c; ++$i)
+            {
+                [$paramName, $paramValue] = explode('=', $params[$i]);
+
+                $paramName = trim($paramName);
+
+                if(!$paramName) continue;
+
+                $paramValue = trim($paramValue);
+                $paramValue = trim($paramValue, '"');
+
+                $timing[$paramName] = $paramValue;
+
+            }
+
+
+            $result_array[] = $timing;
+        }
+
+        return $result_array;
     }
 }
