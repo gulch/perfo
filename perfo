@@ -4,12 +4,14 @@
 
 require __DIR__.'/vendor/autoload.php';
 
-use Symfony\Component\Console\Application;
+use Perfo\Command\ManyCommand;
 use Perfo\Command\SingleCommand;
+use Symfony\Component\Console\Application;
 
 $application = new Application('Perfo', '0.1');
 
 // ... register commands
 $application->add(new SingleCommand);
+$application->add(new ManyCommand);
 
 $application->run();
