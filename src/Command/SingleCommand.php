@@ -13,7 +13,7 @@ class SingleCommand extends Command
     protected function configure(): void
     {
         $this->setName('one')
-            ->setDescription('Single Request App Performance Measure')
+            ->setDescription('One Single Request App Performance Measure')
             ->setHelp('This command allows you to send single request to web app...')
             ->addArgument(
                 'url',
@@ -64,16 +64,8 @@ class SingleCommand extends Command
 
         $info = \curl_getinfo($ch);
 
-        //print_r($headers);
-
-        //print_r($info);
-
-        //echo 'DNS Lookup' . sprintf('%20.2f', $info['namelookup_time_us'] / 1000) . " ms \n";
-        //echo 'TCP Handshake' . sprintf('%17.2f', ($info['connect_time_us'] - $info['namelookup_time_us']) / 1000) . " ms \n";
-        //echo 'SSL Handshake' . sprintf('%17.2f', ($info['appconnect_time_us'] - $info['connect_time_us']) / 1000) . " ms \n";
-        //echo 'Time To First Byte' . sprintf('%12.2f', ($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000) . " ms \n";
-        //echo 'Data Transfer' . sprintf('%17.2f', ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000) . " ms \n";
-        //echo $headers['server-timing'][0] . "\n";
+        // sort headers array by header name
+        \ksort($headers);
 
         $output->writeln('');
         $output->writeln('🚀' . $this->getApplication()->getName() . ' v' . $this->getApplication()->getVersion());
