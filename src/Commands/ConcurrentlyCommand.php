@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfo\Command;
+namespace Perfo\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -9,13 +9,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use function curl_setopt, strlen, trim, count, explode, is_array;
 
-class ManyCommand extends Command
+class ConcurrentlyCommand extends Command
 {
     protected function configure(): void
     {
-        $this->setName('many')
-            ->setDescription('Make Many Concurrent Requests to Web Application')
-            ->setHelp('This command allows you to send many concurrent requests to web app...')
+        $this->setName('cc')
+            ->setDescription('Concurrently Requests Performance Measure')
+            ->setHelp('This command allows you to send concurrently requests to web app')
             ->addArgument(
                 'url',
                 InputArgument::REQUIRED,
@@ -94,7 +94,7 @@ class ManyCommand extends Command
             $output->writeln($this->getFormattedStr('Data Transfer', ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000));
         }
 
-        print_r($headers);
+        //print_r($headers);
 
         return self::SUCCESS;
     }

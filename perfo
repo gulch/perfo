@@ -1,17 +1,16 @@
 #!/usr/bin/env php
 <?php
-// application.php
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-use Perfo\Command\ManyCommand;
-use Perfo\Command\SingleCommand;
+use Perfo\Commands\ConcurrentlyCommand;
+use Perfo\Commands\OneByOneCommand;
 use Symfony\Component\Console\Application;
 
 $application = new Application('Perfo', '0.1');
 
 // ... register commands
-$application->add(new SingleCommand);
-$application->add(new ManyCommand);
+$application->add(new OneByOneCommand);
+$application->add(new ConcurrentlyCommand);
 
 $application->run();
