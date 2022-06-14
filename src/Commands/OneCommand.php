@@ -46,7 +46,7 @@ class OneCommand extends Command
         curl_setopt($ch, \CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, \CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, \CURLOPT_ENCODING, 'gzip, deflate');
+        curl_setopt($ch, \CURLOPT_ENCODING, 'gzip, deflate, br');
 
         // this function is called by curl for each header received
         curl_setopt(
@@ -81,10 +81,9 @@ class OneCommand extends Command
             }
         );
 
-        $response = \curl_exec($ch);
+        \curl_exec($ch);
 
         $info = \curl_getinfo($ch);
-
 
         $output->write("\n\n");
 
@@ -100,25 +99,8 @@ class OneCommand extends Command
 
             $output->write("\n\n");
 
-            $this->outputHeaders($headers, $output);
-        }
-
-        $output->write("\n\n");
-
-        $output->writeln('<fg=gray>Timing (in ms):</>');
-        $output->writeln($this->getFormattedStr('DNS Lookup', $info['namelookup_time_us'] / 1000));
-        $output->writeln($this->getFormattedStr('TCP Handshake', ($info['connect_time_us'] - $info['namelookup_time_us']) / 1000));
-        $output->writeln($this->getFormattedStr('SSL Handshake', ($info['appconnect_time_us'] - $info['connect_time_us']) / 1000));
-        $output->writeln($this->getFormattedStr('TTFB', ($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000));
-        $output->writeln($this->getFormattedStr('Data Transfer', ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000));
-        $output->writeln('<fg=gray>' . str_repeat('-', 30) . '</>');
-        $output->writeln($this->getFormattedStr('Total', $info['total_time_us'] / 1000, true, 'bright-yellow'));
-        
-        if($info['redirect_time'] > 0) {
-            $output->writeln('<fg=gray>' . str_repeat('-', 30) . '</>');
-            $output->writeln($this->getFormattedStr('Redirect', $info['redirect_time_us'] / 1000));
-        }
-        
+            $this->outputHelper->outputHeaders($output, $headers);
+        }    
 
         // Server-Timing
         if ($input->getOption('server-timing')) {
@@ -140,85 +122,16 @@ class OneCommand extends Command
                 $parsed_timings = $this->parseServerTiming($server_timing_header);
             }
 
-            $this->outputServerTiming($parsed_timings, $output);
+            $this->outputHelper->outputServerTiming($output, $parsed_timings);
         }
 
         $output->write("\n\n");
 
+        $this->outputHelper->outputTiming($output, $info);
+
+        $output->write("\n\n");
+
         return self::SUCCESS;
-    }
-
-    private function getFormattedStr(
-        string $title,
-        float $value,
-        bool $is_bold = false,
-        string $color = 'yellow'
-    ): string {
-
-        $value = sprintf('%4.2f', $value);
-
-        $offset = 30 - strlen($title) - strlen($value);
-
-        $bold = $is_bold ? ';options=bold' : '';
-
-        $string = "<fg={$color}{$bold}>{$title}</>";
-
-        $string .= '<fg=gray>' . str_repeat('.', $offset) . '</>';
-
-        $string .= $value;
-
-        return $string;
-    }
-
-    private function outputHeaders(array $headers, OutputInterface $output): void
-    {
-        $output->writeln('<fg=gray>Headers:</>');
-
-        foreach ($headers as $key => $val) {
-            $offset = 30 - strlen($key);
-
-            $offset = $offset > 0 ? $offset : 1;
-
-            if (true === is_array($val)) {
-                $val = implode(' • ', $val);
-            }
-
-            $output->writeln("<fg=blue>{$key}</><fg=gray>" . str_repeat('.', $offset) . '</>' . $val);
-        }
-    }
-
-    private function outputServerTiming(array $items, OutputInterface $output): void
-    {
-        $output->writeln('<fg=gray>Server-Timing:</>');
-
-        if (0 === count($items)) {
-            $output->writeln('<fg=gray;bg=red>Server-Timing header not exists</>');
-            return;
-        }
-
-        foreach ($items as $item) {
-
-            $string = "<fg=magenta>{$item['name']}</>";
-
-            $dur = '';
-            if (isset($item['dur'])) {
-                $dur = sprintf('%4.2f', $item['dur']);
-            }
-
-            $offset = 30 - strlen($item['name']) - strlen($dur);
-
-            $offset = $offset > 0 ? $offset : 1;
-
-            $string .= '<fg=gray>' . str_repeat('.', $offset) . '</>';
-
-            $string .= $dur;
-
-            if (isset($item['desc'])) {
-                $string .= '<fg=gray>' . str_repeat('.', 5) . '</><fg=magenta>' . $item['desc'] . '</>';
-            }
-
-            $output->writeln($string);
-        }
     }
 
     /* 
