@@ -41,8 +41,10 @@ class ConcurrentlyCommand extends Command
             $curl_handlers[$i] = \curl_init();
 
             curl_setopt($curl_handlers[$i], \CURLOPT_URL, $input->getArgument('url'));
-            curl_setopt($curl_handlers[$i], CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl_handlers[$i], \CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl_handlers[$i], \CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl_handlers[$i], \CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl_handlers[$i], \CURLOPT_ENCODING, 'gzip, deflate, br');
 
             curl_setopt(
                 $curl_handlers[$i],
