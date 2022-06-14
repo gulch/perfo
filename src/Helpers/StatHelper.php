@@ -4,7 +4,7 @@ namespace Perfo\Helpers;
 
 use function count, sort, is_float, intval;
 
-class MathHelper
+class StatHelper
 {
     public function calculateMedian(array $items): int|float
     {
@@ -25,14 +25,27 @@ class MathHelper
 
         $sum = 0;
 
-        foreach($items as $item) {
-            if($item <= 0) continue;
+        foreach ($items as $item) {
+            if ($item <= 0) continue;
 
             $sum += $item;
-            
+
             ++$count;
         }
 
         return $sum / $count;
+    }
+
+    public function calculatePercentile(int $percentile, array $items): int|float
+    {
+        sort($items);
+
+        $index = ($percentile / 100) * count($items);
+
+        if (intval($index) == $index) {
+            return ($items[$index - 1] + $items[$index]) / 2;
+        }
+
+        return $items[intval($index)];
     }
 }
