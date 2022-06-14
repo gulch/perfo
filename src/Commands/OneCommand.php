@@ -2,6 +2,7 @@
 
 namespace Perfo\Commands;
 
+use Perfo\Helpers\OutputHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,6 +12,8 @@ use function curl_setopt, strlen, trim, count, explode, is_array;
 
 class OneCommand extends Command
 {
+    private OutputHelper $outputHelper;
+
     protected function configure(): void
     {
         $this->setName('one')
@@ -29,6 +32,8 @@ class OneCommand extends Command
                 'z',
                 InputOption::VALUE_NONE,
             );
+
+        $this->outputHelper = new OutputHelper;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -38,8 +43,10 @@ class OneCommand extends Command
         $ch = \curl_init();
 
         curl_setopt($ch, \CURLOPT_URL, $input->getArgument('url'));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, \CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, \CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, \CURLOPT_ENCODING, 'gzip, deflate');
 
         // this function is called by curl for each header received
         curl_setopt(
@@ -78,18 +85,25 @@ class OneCommand extends Command
 
         $info = \curl_getinfo($ch);
 
-        $output->writeln('');
-        $output->writeln('<options=bold;fg=bright-red>🚀' . $this->getApplication()->getName() . ' v' . $this->getApplication()->getVersion() . '</>');
-        $output->writeln('');
+
+        $output->write("\n\n");
+
+        $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
+
+        $output->write("\n\n");
+        
+        $this->outputHelper->outputGeneralInfo($input, $output, $info);
 
         if ($input->getOption('output-headers')) {
             // sort headers array by header name
             \ksort($headers);
 
-            $this->outputHeaders($headers, $output);
+            $output->write("\n\n");
 
-            $output->writeln('');
+            $this->outputHeaders($headers, $output);
         }
+
+        $output->write("\n\n");
 
         $output->writeln('<fg=gray>Timing (in ms):</>');
         $output->writeln($this->getFormattedStr('DNS Lookup', $info['namelookup_time_us'] / 1000));
@@ -99,15 +113,23 @@ class OneCommand extends Command
         $output->writeln($this->getFormattedStr('Data Transfer', ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000));
         $output->writeln('<fg=gray>' . str_repeat('-', 30) . '</>');
         $output->writeln($this->getFormattedStr('Total', $info['total_time_us'] / 1000, true, 'bright-yellow'));
-        $output->writeln('');
+        
+        if($info['redirect_time'] > 0) {
+            $output->writeln('<fg=gray>' . str_repeat('-', 30) . '</>');
+            $output->writeln($this->getFormattedStr('Redirect', $info['redirect_time_us'] / 1000));
+        }
+        
 
         // Server-Timing
         if ($input->getOption('server-timing')) {
 
-            $server_timing_header = isset($headers['server-timing']) ? $headers['server-timing'] : ''; 
+            $output->write("\n\n");
+
+            $server_timing_header = isset($headers['server-timing']) ? $headers['server-timing'] : '';
+
+            $parsed_timings = [];
 
             if (true == is_array($server_timing_header)) {
-                $parsed_timings = [];
                 foreach ($server_timing_header as $st) {
                     $parsed_timings = [
                         ...$parsed_timings,
@@ -115,13 +137,13 @@ class OneCommand extends Command
                     ];
                 }
             } else {
-                $this->outputServerTiming(
-                    $this->parseServerTiming($server_timing_header),
-                    $output,
-                );
+                $parsed_timings = $this->parseServerTiming($server_timing_header);
             }
-            $output->writeln('');
+
+            $this->outputServerTiming($parsed_timings, $output);
         }
+
+        $output->write("\n\n");
 
         return self::SUCCESS;
     }
