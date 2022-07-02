@@ -2,13 +2,14 @@
 
 namespace Perfo\Commands;
 
+use Perfo\Handlers\CurlHandler;
 use Perfo\Helpers\OutputHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function curl_setopt, strlen, trim, count, explode, is_array;
+use function trim, count, explode;
 
 class OneCommand extends Command
 {
@@ -38,52 +39,13 @@ class OneCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $headers = [];
+        $curlHandler = new CurlHandler($input->getArgument('url'));
 
-        $ch = \curl_init();
+        $curlHandler->execute();
+        
+        $info = $curlHandler->getInfo();
 
-        curl_setopt($ch, \CURLOPT_URL, $input->getArgument('url'));
-        curl_setopt($ch, \CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, \CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, \CURLOPT_ENCODING, 'gzip, deflate, br');
-
-        // this function is called by curl for each header received
-        curl_setopt(
-            $ch,
-            \CURLOPT_HEADERFUNCTION,
-            function ($curl, $header) use (&$headers) {
-
-                $header_arr = explode(':', $header, 2);
-
-                // ignore headers with no value
-                if (count($header_arr) < 2) {
-                    return strlen($header);
-                }
-
-                $key = \strtolower(trim($header_arr[0]));
-                $value = trim($header_arr[1]);
-
-                if (isset($headers[$key])) {
-
-                    if (true === is_array($headers[$key])) {
-                        $headers[$key] = [$value, ...$headers[$key]];
-                    }
-
-                    $headers[$key] = [$value, $headers[$key]];
-
-                    return strlen($header);
-                }
-
-                $headers[$key] = $value;
-
-                return strlen($header);
-            }
-        );
-
-        \curl_exec($ch);
-
-        $info = \curl_getinfo($ch);
+        $headers = $curlHandler->getHeaders();
 
         $output->write("\n\n");
 
@@ -111,7 +73,7 @@ class OneCommand extends Command
 
             $parsed_timings = [];
 
-            if (true == is_array($server_timing_header)) {
+            if (true == \is_array($server_timing_header)) {
                 foreach ($server_timing_header as $st) {
                     $parsed_timings = [
                         ...$parsed_timings,
