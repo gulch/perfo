@@ -4,7 +4,7 @@ namespace Perfo\Parsers;
 
 use function count, explode, trim;
 
-class ServerTimingHeaderParser 
+class ServerTimingHeaderParser
 {
     /* 
      * parse Server-Timing header(s)
