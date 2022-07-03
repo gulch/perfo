@@ -16,6 +16,11 @@ class CurlHandler
         $this->setupOptions();
     }
 
+    public function getHandle(): CurlHandle
+    {
+        return $this->handler;
+    }
+
     public function execute(): string|bool
     {
         return curl_exec($this->handler);
