@@ -4,6 +4,7 @@ namespace Perfo\Commands;
 
 use Perfo\Handlers\CurlHandler;
 use Perfo\Helpers\OutputHelper;
+use Perfo\Parsers\ServerTimingHeaderParser;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -73,15 +74,17 @@ class OneCommand extends Command
 
             $parsed_timings = [];
 
+            $parser = new ServerTimingHeaderParser();
+
             if (true == \is_array($server_timing_header)) {
                 foreach ($server_timing_header as $st) {
                     $parsed_timings = [
                         ...$parsed_timings,
-                        $this->parseServerTiming($st),
+                        $parser->parse($st),
                     ];
                 }
             } else {
-                $parsed_timings = $this->parseServerTiming($server_timing_header);
+                $parsed_timings = $parser->parse($server_timing_header);
             }
 
             $this->outputHelper->outputServerTiming($output, $parsed_timings);
@@ -94,43 +97,5 @@ class OneCommand extends Command
         $output->write("\n\n");
 
         return self::SUCCESS;
-    }
-
-    /* 
-     * parse Server-Timing header(s)
-     * https://www.w3.org/TR/server-timing
-     * 
-     * example -> Server-Timing: miss,db;dur=53,app;dur=47.2,cache;desc="Cache Read";dur=23.2
-     */
-    private function parseServerTiming(string $header): array
-    {
-        $header = trim($header);
-
-        if ('' === $header) return [];
-
-        $result_array = [];
-
-        foreach (explode(',', $header) as $item) {
-            $params = explode(';', $item);
-
-            $timing['name'] = $params[0];
-
-            for ($i = 1, $c = count($params); $i < $c; ++$i) {
-                [$paramName, $paramValue] = explode('=', $params[$i]);
-
-                $paramName = trim($paramName);
-
-                if (!$paramName) continue;
-
-                $paramValue = trim($paramValue);
-                $paramValue = trim($paramValue, '"');
-
-                $timing[$paramName] = $paramValue;
-            }
-
-            $result_array[] = $timing;
-        }
-
-        return $result_array;
     }
 }
