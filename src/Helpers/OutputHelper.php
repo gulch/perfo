@@ -97,7 +97,16 @@ class OutputHelper
         }
     }
 
-    private function getFormattedStr(
+/*     public function writeFormattedLine(
+        OutputInterface $output,
+        string $title,
+        string|int|float $value,
+        string $color = 'yellow',
+    ): void {
+        $output->writeln($this->getFormattedStr($title, $value, $color));
+    } */
+
+    public function getFormattedStr(
         string $title,
         float $value,
         bool $is_bold = false,
@@ -119,7 +128,7 @@ class OutputHelper
             1 => 'HTTP/1.0',
             2 => 'HTTP/1.1',
             3 => 'HTTP/2',
-            3 => 'HTTP/3',
+            4 => 'HTTP/3',
             default => 'unknown'
         };
     }

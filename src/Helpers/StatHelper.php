@@ -6,7 +6,7 @@ use function count, sort, is_float, intval;
 
 class StatHelper
 {
-    public function calculateMedian(array $items): int|float
+    public static function calculateMedian(array $items): int|float
     {
         sort($items);
 
@@ -19,7 +19,7 @@ class StatHelper
         return ($items[$middleIndex] + $items[$middleIndex - 1]) / 2;
     }
 
-    public function calculateAverage(array $items): int|float
+    public static function calculateAverage(array $items): int|float
     {
         $count = 1;
 
@@ -36,7 +36,7 @@ class StatHelper
         return $sum / $count;
     }
 
-    public function calculatePercentile(int $percentile, array $items): int|float
+    public static function calculatePercentile(int $percentile, array $items): int|float
     {
         sort($items);
 

@@ -43,6 +43,10 @@ class CurlHandler
         curl_setopt($this->handler, \CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($this->handler, \CURLOPT_ENCODING, 'gzip, deflate, br');
 
+        curl_setopt($this->handler, \CURLOPT_DNS_USE_GLOBAL_CACHE, true);
+        curl_setopt($this->handler, \CURLOPT_FRESH_CONNECT, true);
+
+
         // this function is called by curl for each header received
         curl_setopt(
             $this->handler,
