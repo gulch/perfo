@@ -97,6 +97,57 @@ class OutputHelper
         }
     }
 
+    public function outputTimingTable(OutputInterface $output, array $table): void
+    {
+        $table_offset = 15;
+
+        $header_text = 'Timing (in ms):';
+
+        $offset = self::DEFAULT_OFFSET - $table_offset - strlen($header_text);
+
+        $header_text .= str_repeat('.', $offset);
+
+        foreach ($table['Total'] as $key => $value) {
+
+            if(true === \is_array($value)) continue;
+
+            $offset = $table_offset - strlen($key);
+
+            $header_text .= str_repeat('.', $offset);
+            $header_text .= $key;
+        }
+
+        $output->writeln("<fg=gray>{$header_text}</>");
+
+        foreach ($table as $key => $item) {
+
+            $offset = self::DEFAULT_OFFSET - $table_offset - strlen($key);
+
+            $text = "<fg=yellow>{$key}</>";
+            $text .= '<fg=gray>' . str_repeat('.', $offset) . '</>';
+
+            foreach ($item as $item_value) {
+                
+                if(true === \is_array($item_value)) continue;
+
+                $formatted_value = sprintf('%4.2f', $item_value);
+                $item_offset = $table_offset - strlen($formatted_value);
+
+                $text .= '<fg=gray>' . str_repeat('.', $item_offset) . '</>';
+                $text .= $formatted_value;
+            }
+
+            if($key === 'Total') {
+                $total_offset = self::DEFAULT_OFFSET - $table_offset;
+                $total_offset += $table_offset * (count($item) - 1);
+
+                $output->writeln('<fg=gray>' . str_repeat('-', $total_offset) . '</>');
+            }
+
+            $output->writeln($text);
+        }
+    }
+
 /*     public function writeFormattedLine(
         OutputInterface $output,
         string $title,

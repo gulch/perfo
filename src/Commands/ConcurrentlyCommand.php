@@ -35,8 +35,6 @@ class ConcurrentlyCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $headers = [];
-
         $cmh = \curl_multi_init();
 
         $curl_handlers = [];
@@ -53,13 +51,21 @@ class ConcurrentlyCommand extends Command
             );
         }
 
+        $output->write("\n\n");
+
+        $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
+
+        $output->write("\n\n");
+
+        $output->writeln("Doing {$requests_count} concurrent requests...");
+
+        $timestamp = \microtime(true); // current timestamp in seconds
+
         do {
             \curl_multi_exec($cmh, $running);
         } while ($running > 0);
 
-        $output->write("\n\n");
-
-        $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
+        $output->writeln('Execution time: ' . sprintf('%2.3f', microtime(true) - $timestamp) . ' seconds');
 
         $output->write("\n\n");
 
@@ -83,10 +89,6 @@ class ConcurrentlyCommand extends Command
             $table['TTFB']['values'][] = ($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000;
             $table['Data Transfer']['values'][] = ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000;
             $table['Total']['values'][] = $info['total_time_us'] / 1000;
-
-            //$this->outputHelper->outputGeneralInfo($input, $output, $info);
-            //$this->outputHelper->outputTiming($output, $info);
-            //$output->write("\n\n");
         }
 
         foreach($table as $key => $val) {
@@ -98,18 +100,11 @@ class ConcurrentlyCommand extends Command
             $table[$key]['p95'] = StatHelper::calculatePercentile(95, $val['values']);
         }
 
-        print_r($table);
-
         if ($failed_requests > 0) {
-            $output->writeln(
-                $this->outputHelper->getFormattedStr(
-                    'Failed requests',
-                    $failed_requests,
-                    true,
-                    'red',
-                )
-            );
+            $output->writeln('<fg=red>Failed requests: ' . $failed_requests . '</>');
         }
+
+        $this->outputHelper->outputTimingTable($output, $table);
 
         $output->write("\n\n");
 
