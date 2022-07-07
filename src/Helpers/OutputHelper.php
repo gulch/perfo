@@ -12,7 +12,10 @@ class OutputHelper
 
     public function outputWelcomeMessage(OutputInterface $output, Application $app): void
     {
-        $output->writeln('<options=bold;fg=bright-magenta>🚀' . $app->getName() . ' v' . $app->getVersion() . '</>');
+        $output->writeln('<options=bold;fg=bright-magenta>🚀 ' . $app->getName() . ' v' . $app->getVersion() . '</>');
+
+        $curl_version = \curl_version();
+        $output->writeln('<fg=magenta>Using Curl v' . $curl_version['version'] . ' with ' . $curl_version['ssl_version'] . '</>');
     }
 
     public function outputGeneralInfo(InputInterface $input, OutputInterface $output, array $info): void
