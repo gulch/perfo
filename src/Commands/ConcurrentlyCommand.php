@@ -65,7 +65,7 @@ class ConcurrentlyCommand extends Command
             \curl_multi_exec($cmh, $running);
         } while ($running > 0);
 
-        $output->writeln('Execution time: ' . sprintf('%2.3f', microtime(true) - $timestamp) . ' seconds');
+        $output->writeln('Execution time: ' . sprintf('%2.3f', \microtime(true) - $timestamp) . ' seconds');
 
         $output->write("\n\n");
 
