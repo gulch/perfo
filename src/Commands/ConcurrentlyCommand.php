@@ -5,6 +5,7 @@ namespace Perfo\Commands;
 use Perfo\Handlers\CurlHandler;
 use Perfo\Helpers\OutputHelper;
 use Perfo\Helpers\StatHelper;
+use Perfo\Parsers\ServerTimingHeaderParser;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,6 +29,10 @@ class ConcurrentlyCommand extends Command
                 'requests',
                 'r',
                 InputOption::VALUE_REQUIRED,
+            )->addOption(
+                'server-timing',
+                't',
+                InputOption::VALUE_NONE,
             );
 
         $this->outputHelper = new OutputHelper;
@@ -91,7 +96,7 @@ class ConcurrentlyCommand extends Command
             $table['Total']['values'][] = $info['total_time_us'] / 1000;
         }
 
-        foreach($table as $key => $val) {
+        foreach ($table as $key => $val) {
             $table[$key]['min'] = \min($val['values']);
             $table[$key]['max'] = \max($val['values']);
             $table[$key]['avg'] = StatHelper::calculateAverage($val['values']);
@@ -104,10 +109,71 @@ class ConcurrentlyCommand extends Command
             $output->writeln('<fg=red>Failed requests: ' . $failed_requests . '</>');
         }
 
-        $this->outputHelper->outputTimingTable($output, $table);
+        $this->outputHelper->outputTimingTable($output, $table, 'Timings (in ms)');
 
         $output->write("\n\n");
 
+        // Server-Timing
+        if ($input->getOption('server-timing')) {
+
+            $this->outputServerTimings($curl_handlers, $output);
+        }
+
         return self::SUCCESS;
+    }
+
+    private function outputServerTimings(array $curl_handlers, OutputInterface $output)
+    {
+        $parser = new ServerTimingHeaderParser();
+
+        $table = [];
+
+        foreach ($curl_handlers as $ch) {
+
+            /** @var CurlHandler $ch */
+            $headers = $ch->getHeaders();
+
+            $server_timing_header = isset($headers['server-timing']) ? $headers['server-timing'] : '';
+
+            if ('' === $server_timing_header) continue;
+
+            // parse Server-Timing header
+            $parsed_timings = [];
+
+            if (true == \is_array($server_timing_header)) {
+                foreach ($server_timing_header as $st) {
+                    $parsed_timings = [
+                        ...$parsed_timings,
+                        $parser->parse($st),
+                    ];
+                }
+            } else {
+                $parsed_timings = $parser->parse($server_timing_header);
+            }
+
+            if (0 === \count($parsed_timings)) continue;
+
+            foreach ($parsed_timings as $item) {
+                
+                if (!isset($item['dur'])) continue;
+
+                $table[$item['name']]['values'][] = $item['dur'];
+            }
+
+        }
+
+        foreach ($table as $key => $val) {
+            $table[$key]['min'] = \min($val['values']);
+            $table[$key]['max'] = \max($val['values']);
+            $table[$key]['avg'] = StatHelper::calculateAverage($val['values']);
+            $table[$key]['mdn'] = StatHelper::calculateMedian($val['values']);
+            $table[$key]['p75'] = StatHelper::calculatePercentile(75, $val['values']);
+            $table[$key]['p95'] = StatHelper::calculatePercentile(95, $val['values']);
+        }
+
+        $this->outputHelper->outputTimingTable($output, $table, 'Server-Timing');
+
+        $output->write("\n\n");
+
     }
 }

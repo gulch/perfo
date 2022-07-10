@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class OutputHelper
 {
-    private const DEFAULT_OFFSET = 30;
+    private const DEFAULT_OFFSET = 40;
 
     public function outputWelcomeMessage(OutputInterface $output, Application $app): void
     {
@@ -100,17 +100,20 @@ class OutputHelper
         }
     }
 
-    public function outputTimingTable(OutputInterface $output, array $table): void
+    public function outputTimingTable(OutputInterface $output, array $table, string $title): void
     {
         $table_offset = 15;
 
-        $header_text = 'Timing (in ms):';
+        $header_text = $title . ':';
 
         $offset = self::DEFAULT_OFFSET - $table_offset - strlen($header_text);
 
         $header_text .= str_repeat('.', $offset);
 
-        foreach ($table['Total'] as $key => $value) {
+        $first_key = \array_key_first($table);
+        $first_item = $table[$first_key];
+
+        foreach ($first_item as $key => $value) {
 
             if(true === \is_array($value)) continue;
 
