@@ -119,6 +119,8 @@ class ConcurrentlyCommand extends Command
             $this->outputServerTimings($curl_handlers, $output);
         }
 
+        $output->write("\n\n");
+
         return self::SUCCESS;
     }
 
@@ -171,9 +173,10 @@ class ConcurrentlyCommand extends Command
             $table[$key]['p95'] = StatHelper::calculatePercentile(95, $val['values']);
         }
 
-        $this->outputHelper->outputTimingTable($output, $table, 'Server-Timing');
-
-        $output->write("\n\n");
-
+        if(0 === \count($table)) {
+            $output->writeln('<fg=gray;bg=red>Server-Timing header not exists</>');
+        } else {
+            $this->outputHelper->outputTimingTable($output, $table, 'Server-Timing');
+        }       
     }
 }
