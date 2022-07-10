@@ -25,5 +25,11 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true
+    },
+    "bin": [
+        "bin/perfo"
+    ],
+    "require-dev": {
+        "clue/phar-composer": "^1.4"
     }
 }
