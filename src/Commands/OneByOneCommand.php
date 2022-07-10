@@ -48,10 +48,10 @@ class OneByOneCommand extends AbstractManyCommand
 
         $this->outputTimings($curl_handlers, $output);
 
-        $output->write("\n\n");
-
         // Server-Timing
         if ($input->getOption('server-timing')) {
+
+            $output->write("\n\n");
 
             $this->outputServerTimings($curl_handlers, $output);
         }

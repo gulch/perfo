@@ -91,7 +91,7 @@ class OutputHelper
         $output->writeln($this->getFormattedStr('SSL Handshake', ($info['appconnect_time_us'] - $info['connect_time_us']) / 1000));
         $output->writeln($this->getFormattedStr('TTFB', ($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000));
         $output->writeln($this->getFormattedStr('Data Transfer', ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000));
-        $output->writeln('<fg=gray>' . str_repeat('-', 30) . '</>');
+        $output->writeln('<fg=gray>' . str_repeat('-', self::DEFAULT_OFFSET) . '</>');
         $output->writeln($this->getFormattedStr('Total', $info['total_time_us'] / 1000, true, 'bright-yellow'));
 
         if ($info['redirect_time'] > 0) {
@@ -153,15 +153,6 @@ class OutputHelper
             $output->writeln($text);
         }
     }
-
-/*     public function writeFormattedLine(
-        OutputInterface $output,
-        string $title,
-        string|int|float $value,
-        string $color = 'yellow',
-    ): void {
-        $output->writeln($this->getFormattedStr($title, $value, $color));
-    } */
 
     public function getFormattedStr(
         string $title,
