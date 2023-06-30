@@ -42,6 +42,14 @@ class OneByOneCommand extends AbstractManyCommand
             $curl_handlers[$i] = $handler;
         }
 
+        $output->write("\n\n");
+
+        $info = $curl_handlers[0]->getInfo();
+        
+        $this->outputHelper->outputGeneralInfo($input, $output, $info);
+
+        $output->write("\n\n");
+
         $output->writeln('Execution time: ' . sprintf('%2.3f', \microtime(true) - $timestamp) . ' seconds');
 
         $output->write("\n\n");

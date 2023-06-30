@@ -28,8 +28,8 @@ class OutputHelper
 
         $output->writeln('<fg=green>URL:</> ' . $url_string);
         $output->writeln('<fg=green>Protocol:</> ' . $this->getHttpVersionText($info['http_version']));
-        $output->writeln('<fg=green>Code:</> ' . $info['http_code']);
-        $output->writeln('<fg=green>Downloaded:</> ' . $this->getSizeText($info['size_download']));
+        $output->writeln('<fg=green>Status Code:</> ' . $info['http_code']);
+        $output->writeln('<fg=green>Response Size:</> ' . $this->getSizeText($info['size_download']));
     }
 
     public function outputServerTiming(OutputInterface $output, array $items): void
