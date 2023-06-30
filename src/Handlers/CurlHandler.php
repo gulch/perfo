@@ -3,7 +3,7 @@
 namespace Perfo\Handlers;
 
 use CurlHandle;
-use function curl_init, curl_setopt, curl_exec, curl_getinfo, strlen, trim, count;
+use function count, curl_exec, curl_getinfo, curl_init, curl_setopt, strlen, trim;
 
 class CurlHandler
 {
@@ -42,6 +42,7 @@ class CurlHandler
         curl_setopt($this->handler, \CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->handler, \CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($this->handler, \CURLOPT_ENCODING, 'gzip, deflate, br');
+        curl_setopt($this->handler, \CURLOPT_USERAGENT, 'gulch/perfo via cURL');
 
         curl_setopt($this->handler, \CURLOPT_DNS_USE_GLOBAL_CACHE, true);
         curl_setopt($this->handler, \CURLOPT_FRESH_CONNECT, true);
