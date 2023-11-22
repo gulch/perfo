@@ -52,12 +52,6 @@ class OneCommand extends Command
         $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
 
         $info = $curl_handler->getInfo();
-
-
-        
-        var_dump($info);
-        echo "\n\n\n\n\n\n";
-
         
         $this->outputHelper->outputGeneralInfo($input, $output, $info);
 
