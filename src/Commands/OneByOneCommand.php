@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Perfo\Commands;
 
 use Perfo\Handlers\CurlHandler;
@@ -19,11 +21,7 @@ class OneByOneCommand extends AbstractManyCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->write("\n\n");
-
         $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
-
-        $output->write("\n\n");
 
         $requests_count = $input->getOption('requests');
 
@@ -34,18 +32,18 @@ class OneByOneCommand extends AbstractManyCommand
         $curl_handlers = [];
 
         for ($i = 0; $i < $requests_count; ++$i) {
-            
-            $handler = new CurlHandler($input->getArgument('url'));
-            
-            $handler->execute();
 
-            $curl_handlers[$i] = $handler;
+            $curl_handler = new CurlHandler($input);
+
+            $curl_handler->execute();
+
+            $curl_handlers[$i] = $curl_handler;
         }
 
         $output->write("\n\n");
 
         $info = $curl_handlers[0]->getInfo();
-        
+
         $this->outputHelper->outputGeneralInfo($input, $output, $info);
 
         $output->write("\n\n");

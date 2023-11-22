@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Perfo\Parsers;
 
 use function count, explode, trim;

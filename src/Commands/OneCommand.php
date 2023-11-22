@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Perfo\Commands;
 
 use Perfo\Handlers\CurlHandler;
@@ -10,7 +12,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function trim, count, explode;
 
 class OneCommand extends Command
 {
@@ -33,6 +34,8 @@ class OneCommand extends Command
                 'output-headers',
                 'z',
                 InputOption::VALUE_NONE,
+            )->addOption(
+                'force-http3',
             );
 
         $this->outputHelper = new OutputHelper;
@@ -40,25 +43,27 @@ class OneCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $curlHandler = new CurlHandler($input->getArgument('url'));
+        $curl_handler = new CurlHandler($input);
 
-        $curlHandler->execute();
+        $curl_handler->execute();
         
-        $info = $curlHandler->getInfo();
-
-        $headers = $curlHandler->getHeaders();
-
-        $output->write("\n\n");
+        $headers = $curl_handler->getHeaders();
 
         $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
 
-        $output->write("\n\n");
+        $info = $curl_handler->getInfo();
+
+
+        
+        var_dump($info);
+        echo "\n\n\n\n\n\n";
+
         
         $this->outputHelper->outputGeneralInfo($input, $output, $info);
 
         if ($input->getOption('output-headers')) {
-            // sort headers array by header name
-            \ksort($headers);
+            
+            \ksort($headers); // sort headers array by header name
 
             $output->write("\n\n");
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Perfo\Helpers;
 
 use function count, sort, is_float, intval;

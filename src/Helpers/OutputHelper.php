@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Perfo\Helpers;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+
+use function count, floor, implode, is_array, log, round, sprintf, str_repeat, strlen;
 
 class OutputHelper
 {
@@ -12,10 +16,15 @@ class OutputHelper
 
     public function outputWelcomeMessage(OutputInterface $output, Application $app): void
     {
+        $output->write("\n\n");
+
         $output->writeln('<options=bold;fg=bright-magenta>🚀 ' . $app->getName() . ' v' . $app->getVersion() . '</>');
 
         $curl_version = \curl_version();
+        
         $output->writeln('<fg=magenta>Using Curl v' . $curl_version['version'] . ' with ' . $curl_version['ssl_version'] . '</>');
+
+        $output->write("\n\n");
     }
 
     public function outputGeneralInfo(InputInterface $input, OutputInterface $output, array $info): void
@@ -29,14 +38,14 @@ class OutputHelper
         $output->writeln('<fg=green>URL:</> ' . $url_string);
         $output->writeln('<fg=green>Protocol:</> ' . $this->getHttpVersionText($info['http_version']));
         $output->writeln('<fg=green>Status Code:</> ' . $info['http_code']);
-        $output->writeln('<fg=green>Response Size:</> ' . $this->getSizeText($info['size_download']));
+        $output->writeln('<fg=green>Response Size:</> ' . $this->humanReadableSize($info['size_download']));
     }
 
     public function outputServerTiming(OutputInterface $output, array $items): void
     {
         $output->writeln('<fg=gray>Server-Timing:</>');
 
-        if (0 === count($items)) {
+        if (count($items) === 0) {
             $output->writeln('<fg=gray;bg=red>Server-Timing header not exists</>');
             return;
         }
@@ -75,7 +84,7 @@ class OutputHelper
 
             $offset = $offset > 0 ? $offset : 1;
 
-            if (true === is_array($val)) {
+            if (is_array($val)) {
                 $val = implode(' • ', $val);
             }
 
@@ -115,7 +124,7 @@ class OutputHelper
 
         foreach ($first_item as $key => $value) {
 
-            if(true === \is_array($value)) continue;
+            if(is_array($value)) continue;
 
             $offset = $table_offset - strlen($key);
 
@@ -134,7 +143,7 @@ class OutputHelper
 
             foreach ($item as $item_value) {
                 
-                if(true === \is_array($item_value)) continue;
+                if(is_array($item_value)) continue;
 
                 $formatted_value = sprintf('%4.2f', $item_value);
                 $item_offset = $table_offset - strlen($formatted_value);
@@ -177,22 +186,21 @@ class OutputHelper
             2 => 'HTTP/1.1',
             3 => 'HTTP/2',
             4 => 'HTTP/3',
-            default => 'unknown'
+            30 => 'HTTP/3',
+            default => 'raw value: ' . $value
         };
     }
 
-    private function getSizeText(int $value): string
+    private function humanReadableSize(int|float $bytes) :string
     {
-        // MBytes/s
-        if ($value > 1024 * 1024) {
-            return sprintf('%1.2f', $value / 1024 / 1024) . ' MBytes';
+        if ($bytes == 0) {
+            return "0.00 bytes";
         }
+        
+        $units = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+        
+        $exponent = floor(log($bytes, 1024));
 
-        // KBytes/s
-        if ($value > 1024) {
-            return sprintf('%1.2f', $value / 1024) . ' Kbytes';
-        }
-
-        return $value . ' bytes';
+        return round($bytes / pow(1024, $exponent), 2) . ' ' . $units[$exponent];
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Perfo\Commands;
 
 use Perfo\Handlers\CurlHandler;
@@ -28,7 +30,7 @@ class ConcurrentlyCommand extends AbstractManyCommand
 
         for ($i = 0; $i < $requests_count; ++$i) {
 
-            $curl_handlers[$i] = new CurlHandler($input->getArgument('url'));
+            $curl_handlers[$i] = new CurlHandler($input);
 
             \curl_multi_add_handle(
                 $cmh,
@@ -36,11 +38,7 @@ class ConcurrentlyCommand extends AbstractManyCommand
             );
         }
 
-        $output->write("\n\n");
-
         $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
-
-        $output->write("\n\n");
 
         $output->writeln("Doing {$requests_count} concurrent requests...");
 

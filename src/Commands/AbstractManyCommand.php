@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Perfo\Commands;
 
 use Perfo\Handlers\CurlHandler;
@@ -7,11 +9,11 @@ use Perfo\Helpers\OutputHelper;
 use Perfo\Helpers\StatHelper;
 use Perfo\Parsers\ServerTimingHeaderParser;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Exception\LogicException;
 
 abstract class AbstractManyCommand extends Command
 {
@@ -31,6 +33,8 @@ abstract class AbstractManyCommand extends Command
                 'server-timing',
                 't',
                 InputOption::VALUE_NONE,
+            )->addOption(
+                'force-http3',
             );
 
         $this->outputHelper = new OutputHelper;
@@ -41,9 +45,9 @@ abstract class AbstractManyCommand extends Command
         throw new LogicException('You must override the execute() method in the concrete command class.');
     }
 
-    protected function outputTimings(array $curl_handlers, OutputInterface $output)
+    protected function outputTimings(array $curl_handlers, OutputInterface $output): void
     {
-        $failed_requests = 0;
+        $failed_requests_count = 0;
         $table = [];
 
         foreach ($curl_handlers as $ch) {
@@ -52,7 +56,7 @@ abstract class AbstractManyCommand extends Command
             $info = $ch->getInfo();
 
             if ($info['http_code'] != 200) {
-                ++$failed_requests;
+                ++$failed_requests_count;
                 continue;
             }
 
@@ -74,14 +78,14 @@ abstract class AbstractManyCommand extends Command
             $table[$key]['p95'] = StatHelper::calculatePercentile(95, $val['values']);
         }
 
-        if ($failed_requests > 0) {
-            $output->writeln('<fg=red>Failed requests: ' . $failed_requests . '</>');
+        if ($failed_requests_count > 0) {
+            $output->writeln('<fg=red>Failed requests: ' . $failed_requests_count . '</>');
         }
 
         $this->outputHelper->outputTimingTable($output, $table, 'Timings (in ms)');
     }
 
-    protected function outputServerTimings(array $curl_handlers, OutputInterface $output)
+    protected function outputServerTimings(array $curl_handlers, OutputInterface $output): void
     {
         $parser = new ServerTimingHeaderParser();
 

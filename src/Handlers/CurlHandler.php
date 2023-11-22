@@ -1,18 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Perfo\Handlers;
 
 use CurlHandle;
+use Symfony\Component\Console\Input\InputInterface;
+
 use function count, curl_exec, curl_getinfo, curl_init, curl_setopt, strlen, trim;
 
 class CurlHandler
 {
     private CurlHandle $handler;
+    private InputInterface $input;
     private array $headers = [];
 
-    public function __construct(string $url)
+    public function __construct(InputInterface $input)
     {
-        $this->handler = curl_init($url);
+        $this->input = $input;
+
+        $this->init();
+    }
+
+    private function init(): void
+    {
+        $this->handler = curl_init($this->input->getArgument('url'));
+
         $this->setupOptions();
     }
 
@@ -26,7 +39,7 @@ class CurlHandler
         return curl_exec($this->handler);
     }
 
-    public function getInfo()
+    public function getInfo(): mixed
     {
         return curl_getinfo($this->handler);
     }
@@ -36,7 +49,7 @@ class CurlHandler
         return $this->headers;
     }
 
-    private function setupOptions()
+    private function setupOptions(): void
     {
         curl_setopt($this->handler, \CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($this->handler, \CURLOPT_RETURNTRANSFER, true);
@@ -47,6 +60,11 @@ class CurlHandler
         curl_setopt($this->handler, \CURLOPT_DNS_USE_GLOBAL_CACHE, true);
         curl_setopt($this->handler, \CURLOPT_FRESH_CONNECT, true);
 
+        // force request via HTTP3 protocol
+        if ($this->input->getOption('force-http3')) {
+            // constant CURL_HTTP_VERSION_3ONLY value is 31
+            curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, 31);
+        }  
 
         // this function is called by curl for each header received
         curl_setopt(
