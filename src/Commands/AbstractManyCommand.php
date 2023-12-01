@@ -37,14 +37,12 @@ abstract class AbstractManyCommand extends Command
                 InputOption::VALUE_NONE,
             )->addOption(
                 'force-http3',
+                null,
+                InputOption::VALUE_NONE,
+                'Force usage of HTTP/3 protocol',
             );
 
         $this->outputHelper = new OutputHelper;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        throw new LogicException('You must override the execute() method in the concrete command class.');
     }
 
     protected function outputTimings(array $curl_handlers, OutputInterface $output): void

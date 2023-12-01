@@ -1,6 +1,7 @@
 /.idea
 /.vscode
+/1.php
+/composer.lock
+/perfo.phar
+/phar-composer.phar
 /vendor
-1.php
-composer.lock
-perfo.phar

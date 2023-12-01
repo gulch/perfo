@@ -12,7 +12,7 @@
     "require": {
         "php": ">=8.1",
         "ext-curl": "*",
-        "symfony/console": "^6.3"
+        "symfony/console": "^7.0"
     },
     "autoload": {
         "psr-4": {
@@ -30,6 +30,6 @@
         "bin/perfo"
     ],
     "require-dev": {
-        "clue/phar-composer": "^1.4"
+        
     }
 }
