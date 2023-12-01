@@ -15,6 +15,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function floatval;
+
 abstract class AbstractManyCommand extends Command
 {
     protected OutputHelper $outputHelper;
@@ -61,12 +63,12 @@ abstract class AbstractManyCommand extends Command
             }
 
             // add values to array in ms
-            $table['DNS Lookup']['values'][] = $info['namelookup_time_us'] / 1000;
-            $table['TCP Handshake']['values'][] = ($info['connect_time_us'] - $info['namelookup_time_us']) / 1000;
-            $table['SSL Handshake']['values'][] = ($info['appconnect_time_us'] - $info['connect_time_us']) / 1000;
-            $table['TTFB']['values'][] = ($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000;
-            $table['Data Transfer']['values'][] = ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000;
-            $table['Total']['values'][] = $info['total_time_us'] / 1000;
+            $table['DNS Lookup']['values'][] = floatval($info['namelookup_time_us'] / 1000);
+            $table['TCP Handshake']['values'][] = floatval(($info['connect_time_us'] - $info['namelookup_time_us']) / 1000);
+            $table['SSL Handshake']['values'][] = floatval(($info['appconnect_time_us'] - $info['connect_time_us']) / 1000);
+            $table['TTFB']['values'][] = floatval(($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000);
+            $table['Data Transfer']['values'][] = floatval(($info['total_time_us'] - $info['starttransfer_time_us']) / 1000);
+            $table['Total']['values'][] = floatval($info['total_time_us'] / 1000);
         }
 
         foreach ($table as $key => $val) {

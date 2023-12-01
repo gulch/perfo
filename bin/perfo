@@ -8,7 +8,7 @@ use Perfo\Commands\OneByOneCommand;
 use Perfo\Commands\OneCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('Perfo', '0.4');
+$application = new Application('Perfo', '0.5');
 
 // ... register commands
 $application->add(new OneCommand);

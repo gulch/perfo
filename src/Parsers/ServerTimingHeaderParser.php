@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Perfo\Parsers;
 
-use function count, explode, trim;
+use function count, explode, floatval, trim;
 
 class ServerTimingHeaderParser
 {
@@ -37,7 +37,7 @@ class ServerTimingHeaderParser
                 $paramValue = trim($paramValue);
                 $paramValue = trim($paramValue, '"');
 
-                $timing[$paramName] = $paramValue;
+                $timing[$paramName] = floatval($paramValue);
             }
 
             $result_array[] = $timing;

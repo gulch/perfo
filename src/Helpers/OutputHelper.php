@@ -21,8 +21,8 @@ class OutputHelper
         $output->writeln('<options=bold;fg=bright-magenta>🚀 ' . $app->getName() . ' v' . $app->getVersion() . '</>');
 
         $curl_version = \curl_version();
-        
-        $output->writeln('<fg=magenta>Using Curl v' . $curl_version['version'] . ' with ' . $curl_version['ssl_version'] . '</>');
+
+        $output->writeln('<fg=magenta>Using PHP ' . \phpversion() . ' with Curl ' . $curl_version['version'] . ' and ' . $curl_version['ssl_version'] . '</>');
 
         $output->write("\n\n");
     }
@@ -124,7 +124,7 @@ class OutputHelper
 
         foreach ($first_item as $key => $value) {
 
-            if(is_array($value)) continue;
+            if (is_array($value)) continue;
 
             $offset = $table_offset - strlen($key);
 
@@ -142,8 +142,8 @@ class OutputHelper
             $text .= '<fg=gray>' . str_repeat('.', $offset) . '</>';
 
             foreach ($item as $item_value) {
-                
-                if(is_array($item_value)) continue;
+
+                if (is_array($item_value)) continue;
 
                 $formatted_value = sprintf('%4.2f', $item_value);
                 $item_offset = $table_offset - strlen($formatted_value);
@@ -152,7 +152,7 @@ class OutputHelper
                 $text .= $formatted_value;
             }
 
-            if($key === 'Total') {
+            if ($key === 'Total') {
                 $total_offset = self::DEFAULT_OFFSET - $table_offset;
                 $total_offset += $table_offset * (count($item) - 1);
 
@@ -185,20 +185,19 @@ class OutputHelper
             1 => 'HTTP/1.0',
             2 => 'HTTP/1.1',
             3 => 'HTTP/2',
-            4 => 'HTTP/3',
             30 => 'HTTP/3',
             default => 'raw value: ' . $value
         };
     }
 
-    private function humanReadableSize(int|float $bytes) :string
+    private function humanReadableSize(int|float $bytes): string
     {
         if ($bytes == 0) {
             return "0.00 bytes";
         }
-        
+
         $units = ['bytes', 'KB', 'MB', 'GB', 'TB'];
-        
+
         $exponent = floor(log($bytes, 1024));
 
         return round($bytes / pow(1024, $exponent), 2) . ' ' . $units[$exponent];

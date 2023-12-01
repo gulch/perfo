@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Perfo\Helpers;
 
-use function count, sort, is_float, intval;
+use function count, floatval, intval, is_float, sort;
 
 class StatHelper
 {
     public static function calculateMedian(array $items): int|float
     {
-        sort($items);
+        // sort items by value
+        sort($items, \SORT_NUMERIC);
 
         $middleIndex = count($items) / 2;
 
@@ -40,11 +41,13 @@ class StatHelper
 
     public static function calculatePercentile(int $percentile, array $items): int|float
     {
-        sort($items);
+        // sort items by value
+        sort($items, \SORT_NUMERIC);
 
+        // get index of item at percentile position 
         $index = ($percentile / 100) * count($items);
 
-        if (intval($index) == $index) {
+        if (intval($index) === $index) {
             return ($items[$index - 1] + $items[$index]) / 2;
         }
 
