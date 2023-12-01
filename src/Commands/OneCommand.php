@@ -32,8 +32,9 @@ class OneCommand extends Command
                 InputOption::VALUE_NONE,
             )->addOption(
                 'output-headers',
-                'z',
+                'o',
                 InputOption::VALUE_NONE,
+                'Output Response Headers',
             )->addOption(
                 'force-http3',
             );
