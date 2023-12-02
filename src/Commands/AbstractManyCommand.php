@@ -8,39 +8,24 @@ use Perfo\Handlers\CurlHandler;
 use Perfo\Helpers\OutputHelper;
 use Perfo\Helpers\StatHelper;
 use Perfo\Parsers\ServerTimingHeaderParser;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\LogicException;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use function floatval;
 
-abstract class AbstractManyCommand extends Command
+abstract class AbstractManyCommand extends AbstractCommand
 {
     protected OutputHelper $outputHelper;
 
     protected function configure(): void
     {
-        $this->addArgument(
-                'url',
-                InputArgument::REQUIRED,
-                'URL',
-            )->addOption(
-                'requests',
-                'r',
-                InputOption::VALUE_REQUIRED,
-            )->addOption(
-                'server-timing',
-                't',
-                InputOption::VALUE_NONE,
-            )->addOption(
-                'force-http3',
-                null,
-                InputOption::VALUE_NONE,
-                'Force usage of HTTP/3 protocol',
-            );
+        $this->addOption(
+            'requests',
+            'r',
+            InputOption::VALUE_REQUIRED,
+        );
+
+        parent::configure();
 
         $this->outputHelper = new OutputHelper;
     }

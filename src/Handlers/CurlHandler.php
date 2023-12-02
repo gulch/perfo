@@ -64,7 +64,7 @@ class CurlHandler
         if ($this->input->getOption('force-http3')) {
             // constant CURL_HTTP_VERSION_3ONLY value is 31
             curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, 31);
-        }  
+        }
 
         // this function is called by curl for each header received
         curl_setopt(

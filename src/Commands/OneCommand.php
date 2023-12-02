@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class OneCommand extends Command
+class OneCommand extends AbstractCommand
 {
     private OutputHelper $outputHelper;
 
@@ -22,22 +22,14 @@ class OneCommand extends Command
         $this->setName('one')
             ->setDescription('One Request Performance Measure')
             ->setHelp('This command allows you to send request to web app')
-            ->addArgument(
-                'url',
-                InputArgument::REQUIRED,
-                'URL',
-            )->addOption(
-                'server-timing',
-                't',
-                InputOption::VALUE_NONE,
-            )->addOption(
+            ->addOption(
                 'output-headers',
                 'o',
                 InputOption::VALUE_NONE,
                 'Output Response Headers',
-            )->addOption(
-                'force-http3',
             );
+
+        parent::configure();
 
         $this->outputHelper = new OutputHelper;
     }
