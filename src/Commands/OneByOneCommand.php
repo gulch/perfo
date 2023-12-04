@@ -46,13 +46,7 @@ class OneByOneCommand extends AbstractManyCommand
 
         $this->outputHelper->outputGeneralInfo($input, $output, $info);
 
-        $output->write("\n\n");
-
         $output->writeln('Execution time: ' . sprintf('%2.3f', \microtime(true) - $timestamp) . ' seconds');
-
-        $output->write("\n\n");
-
-        $this->outputTimings($curl_handlers, $output);
 
         // Server-Timing
         if ($input->getOption('server-timing')) {
@@ -61,6 +55,10 @@ class OneByOneCommand extends AbstractManyCommand
 
             $this->outputServerTimings($curl_handlers, $output);
         }
+
+        $output->write("\n\n");
+
+        $this->outputTimings($curl_handlers, $output);
 
         $output->write("\n\n");
 

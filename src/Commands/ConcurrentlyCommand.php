@@ -48,11 +48,13 @@ class ConcurrentlyCommand extends AbstractManyCommand
             \curl_multi_exec($cmh, $running);
         } while ($running > 0);
 
-        $output->writeln('Execution time: ' . sprintf('%2.3f', \microtime(true) - $timestamp) . ' seconds');
-
         $output->write("\n\n");
 
-        $this->outputTimings($curl_handlers, $output);
+        $info = $curl_handlers[0]->getInfo();
+
+        $this->outputHelper->outputGeneralInfo($input, $output, $info);
+
+        $output->writeln('Execution time: ' . sprintf('%2.3f', \microtime(true) - $timestamp) . ' seconds');
 
         // Server-Timing
         if ($input->getOption('server-timing')) {
@@ -61,6 +63,10 @@ class ConcurrentlyCommand extends AbstractManyCommand
 
             $this->outputServerTimings($curl_handlers, $output);
         }
+
+        $output->write("\n\n");
+
+        $this->outputTimings($curl_handlers, $output);
 
         $output->write("\n\n");
 
