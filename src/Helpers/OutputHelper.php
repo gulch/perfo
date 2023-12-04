@@ -31,6 +31,7 @@ class OutputHelper
     {
         $url_string = $input->getArgument('url');
 
+        // if was redirect to another URL
         if ($input->getArgument('url') != $info['url']) {
             $url_string .= ' -> <options=bold>' . $info['url'] . '</>';
         }
@@ -39,6 +40,10 @@ class OutputHelper
         $output->writeln('<fg=green>Protocol:</> ' . $this->getHttpVersionText($info['http_version']));
         $output->writeln('<fg=green>Status Code:</> ' . $info['http_code']);
         $output->writeln('<fg=green>Response Size:</> ' . $this->humanReadableSize($info['size_download']));
+        
+        $output->write("\n\n");
+        
+        $output->writeln('<fg=cyan>Memory Peak Usage:</> ' . $this->humanReadableSize(memory_get_peak_usage()));
     }
 
     public function outputServerTiming(OutputInterface $output, array $items): void
@@ -95,16 +100,28 @@ class OutputHelper
     public function outputTiming(OutputInterface $output, array $info): void
     {
         $output->writeln('<fg=gray>Timing (in ms):</>');
+
         $output->writeln($this->getFormattedStr('DNS Lookup', $info['namelookup_time_us'] / 1000));
-        $output->writeln($this->getFormattedStr('TCP Handshake', ($info['connect_time_us'] - $info['namelookup_time_us']) / 1000));
-        $output->writeln($this->getFormattedStr('SSL Handshake', ($info['appconnect_time_us'] - $info['connect_time_us']) / 1000));
-        $output->writeln($this->getFormattedStr('TTFB', ($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000));
+
+        if ($info['connect_time_us'] > 0) {
+            $output->writeln($this->getFormattedStr('TCP Handshake', ($info['connect_time_us'] - $info['namelookup_time_us']) / 1000));
+            $output->writeln($this->getFormattedStr('SSL Handshake', ($info['appconnect_time_us'] - $info['connect_time_us']) / 1000));
+        } else {
+            $output->writeln($this->getFormattedStr('SSL Handshake', ($info['appconnect_time_us'] - $info['namelookup_time_us']) / 1000));
+        }
+        
+        $output->writeln($this->getFormattedStr('Request Handle', ($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000));
+        
         $output->writeln($this->getFormattedStr('Data Transfer', ($info['total_time_us'] - $info['starttransfer_time_us']) / 1000));
-        $output->writeln('<fg=gray>' . str_repeat('-', self::DEFAULT_OFFSET) . '</>');
+        
+        $output->writeln('<fg=gray>' . str_repeat('.', self::DEFAULT_OFFSET) . '</>');
+
+        $output->writeln($this->getFormattedStr('TTFB', $info['starttransfer_time_us'] / 1000, true, 'bright-blue'));
+        
         $output->writeln($this->getFormattedStr('Total', $info['total_time_us'] / 1000, true, 'bright-yellow'));
 
         if ($info['redirect_time'] > 0) {
-            $output->writeln('<fg=gray>' . str_repeat('-', self::DEFAULT_OFFSET) . '</>');
+            $output->writeln('<fg=gray>' . str_repeat('.', self::DEFAULT_OFFSET) . '</>');
             $output->writeln($this->getFormattedStr('Redirect', $info['redirect_time_us'] / 1000));
         }
     }
@@ -139,6 +156,11 @@ class OutputHelper
             $offset = self::DEFAULT_OFFSET - $table_offset - strlen($key);
 
             $text = "<fg=yellow>{$key}</>";
+
+            if($key === 'TTFB') {
+                $text = "<fg=blue>{$key}</>";
+            }
+            
             $text .= '<fg=gray>' . str_repeat('.', $offset) . '</>';
 
             foreach ($item as $item_value) {
@@ -152,11 +174,11 @@ class OutputHelper
                 $text .= $formatted_value;
             }
 
-            if ($key === 'Total') {
+            if ($key === 'TTFB') {
                 $total_offset = self::DEFAULT_OFFSET - $table_offset;
                 $total_offset += $table_offset * (count($item) - 1);
 
-                $output->writeln('<fg=gray>' . str_repeat('-', $total_offset) . '</>');
+                $output->writeln('<fg=gray>' . str_repeat('.', $total_offset) . '</>');
             }
 
             $output->writeln($text);

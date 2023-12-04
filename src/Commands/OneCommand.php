@@ -7,8 +7,6 @@ namespace Perfo\Commands;
 use Perfo\Handlers\CurlHandler;
 use Perfo\Helpers\OutputHelper;
 use Perfo\Parsers\ServerTimingHeaderParser;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;

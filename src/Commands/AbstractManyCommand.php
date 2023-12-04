@@ -47,10 +47,20 @@ abstract class AbstractManyCommand extends AbstractCommand
 
             // add values to array in ms
             $table['DNS Lookup']['values'][] = floatval($info['namelookup_time_us'] / 1000);
-            $table['TCP Handshake']['values'][] = floatval(($info['connect_time_us'] - $info['namelookup_time_us']) / 1000);
-            $table['SSL Handshake']['values'][] = floatval(($info['appconnect_time_us'] - $info['connect_time_us']) / 1000);
-            $table['TTFB']['values'][] = floatval(($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000);
+
+            if ($info['connect_time_us'] > 0) {
+                $table['TCP Handshake']['values'][] = floatval(($info['connect_time_us'] - $info['namelookup_time_us']) / 1000);
+                $table['SSL Handshake']['values'][] = floatval(($info['appconnect_time_us'] - $info['connect_time_us']) / 1000);
+            } else {
+                $table['SSL Handshake']['values'][] = floatval(($info['appconnect_time_us'] - $info['namelookup_time_us']) / 1000);
+            }
+
+            $table['Request Handle']['values'][] = floatval(($info['starttransfer_time_us'] - $info['pretransfer_time_us']) / 1000);
+            
             $table['Data Transfer']['values'][] = floatval(($info['total_time_us'] - $info['starttransfer_time_us']) / 1000);
+
+            $table['TTFB']['values'][] = floatval($info['starttransfer_time_us'] / 1000);
+            
             $table['Total']['values'][] = floatval($info['total_time_us'] / 1000);
         }
 
