@@ -21,6 +21,11 @@ abstract class AbstractCommand extends Command
                 't',
                 InputOption::VALUE_NONE,
             )->addOption(
+                'browser-user-agent',
+                'b',
+                InputOption::VALUE_NONE,
+                'Set real browser user-agent',
+            )->addOption(
                 'force-http3',
                 null,
                 InputOption::VALUE_NONE,

@@ -11,6 +11,8 @@ use function count, curl_exec, curl_getinfo, curl_init, curl_setopt, strlen, tri
 
 class CurlHandler
 {
+    private const BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36';
+
     private CurlHandle $handler;
     private InputInterface $input;
     private array $headers = [];
@@ -64,6 +66,11 @@ class CurlHandler
         if ($this->input->getOption('force-http3')) {
             // constant CURL_HTTP_VERSION_3ONLY value is 31
             curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, 31);
+        }
+
+        // Set real browser user-agent
+        if ($this->input->getOption('browser-user-agent')) {
+            curl_setopt($this->handler, \CURLOPT_USERAGENT, self::BROWSER_USER_AGENT);
         }
 
         // this function is called by curl for each header received
