@@ -58,6 +58,7 @@ class CurlHandler
         curl_setopt($this->handler, \CURLOPT_FRESH_CONNECT, true);
         curl_setopt($this->handler, \CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->handler, \CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($this->handler, \CURLOPT_DNS_USE_GLOBAL_CACHE, true);
         curl_setopt($this->handler, \CURLOPT_USERAGENT, 'gulch/perfo via cURL');
 
         // force request via HTTP3 protocol
