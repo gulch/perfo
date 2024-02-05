@@ -214,6 +214,10 @@ class OutputHelper
 
     private function humanReadableSize(int|float $bytes): string
     {
+        if ($bytes <= 0) {
+            return "undefined";
+        }
+
         if ($bytes == 0) {
             return "0.00 bytes";
         }
