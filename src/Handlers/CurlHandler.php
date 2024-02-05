@@ -53,24 +53,17 @@ class CurlHandler
 
     private function setupOptions(): void
     {
-        curl_setopt($this->handler, \CURLOPT_ENCODING, 'gzip, deflate, br, zstd');
+        curl_setopt($this->handler, \CURLOPT_DNS_USE_GLOBAL_CACHE, true);
         curl_setopt($this->handler, \CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($this->handler, \CURLOPT_FRESH_CONNECT, true);
         curl_setopt($this->handler, \CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->handler, \CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($this->handler, \CURLOPT_DNS_USE_GLOBAL_CACHE, true);
-        curl_setopt($this->handler, \CURLOPT_USERAGENT, 'gulch/perfo via cURL');
 
-        // force request via HTTP3 protocol
-        if ($this->input->getOption('force-http3')) {
-            // constant CURL_HTTP_VERSION_3ONLY value is 31
-            curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, 31);
-        }
+        $this->setupUserAgent();
 
-        // Set real browser user-agent
-        if ($this->input->getOption('browser-user-agent')) {
-            curl_setopt($this->handler, \CURLOPT_USERAGENT, self::BROWSER_USER_AGENT);
-        }
+        $this->setupEncoding();
+
+        $this->setupProtocol();
 
         // this function is called by curl for each header received
         curl_setopt(
@@ -104,5 +97,32 @@ class CurlHandler
                 return strlen($header);
             }
         );
+    }
+
+    private function setupUserAgent(): void
+    {
+        // Set real browser user-agent
+        if ($this->input->getOption('browser-user-agent')) {
+            curl_setopt($this->handler, \CURLOPT_USERAGENT, self::BROWSER_USER_AGENT);
+        } else {
+            // default User Agent
+            curl_setopt($this->handler, \CURLOPT_USERAGENT, 'gulch/perfo via cURL');
+        }
+    }
+
+    private function setupEncoding(): void
+    {
+        // Set Content-Encoding
+        curl_setopt($this->handler, \CURLOPT_ENCODING, $this->input->getOption('encoding'));
+    }
+
+    private function setupProtocol(): void
+    {
+        // send request via HTTP3 protocol
+        if ($this->input->getOption('http3')) {
+            // constant CURL_HTTP_VERSION_3 value is 30
+            // constant CURL_HTTP_VERSION_3ONLY value is 31
+            curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, 30);
+        }
     }
 }

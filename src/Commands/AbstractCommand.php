@@ -17,6 +17,12 @@ abstract class AbstractCommand extends Command
                 InputArgument::REQUIRED,
                 'URL',
             )->addOption(
+                'content-encoding',
+                'e',
+                InputOption::VALUE_OPTIONAL,
+                'Set Content-Encoding',
+                'gzip, deflate, br, zstd',
+            )->addOption(
                 'server-timing',
                 't',
                 InputOption::VALUE_NONE,
@@ -24,12 +30,12 @@ abstract class AbstractCommand extends Command
                 'browser-user-agent',
                 'b',
                 InputOption::VALUE_NONE,
-                'Set real browser user-agent',
+                'Set real browser User-Agent',
             )->addOption(
-                'force-http3',
+                'http3',
                 null,
                 InputOption::VALUE_NONE,
-                'Force usage of HTTP/3 protocol',
+                'Send request via HTTP/3 protocol',
             );
     }
 }
