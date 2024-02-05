@@ -113,7 +113,7 @@ class CurlHandler
     private function setupEncoding(): void
     {
         // Set Content-Encoding
-        curl_setopt($this->handler, \CURLOPT_ENCODING, $this->input->getOption('encoding'));
+        curl_setopt($this->handler, \CURLOPT_ENCODING, $this->input->getOption('content-encoding'));
     }
 
     private function setupProtocol(): void
@@ -122,7 +122,7 @@ class CurlHandler
         if ($this->input->getOption('http11')) {
             curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, \CURL_HTTP_VERSION_1_1);
         }
-        
+
         // send request via HTTP2 protocol
         if ($this->input->getOption('http2')) {
             curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, \CURL_HTTP_VERSION_2);
