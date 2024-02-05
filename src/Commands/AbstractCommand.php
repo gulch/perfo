@@ -32,6 +32,16 @@ abstract class AbstractCommand extends Command
                 InputOption::VALUE_NONE,
                 'Set real browser User-Agent',
             )->addOption(
+                'http11',
+                null,
+                InputOption::VALUE_NONE,
+                'Send request via HTTP 1.1 protocol',
+            )->addOption(
+                'http2',
+                null,
+                InputOption::VALUE_NONE,
+                'Send request via HTTP/2 protocol',
+            )->addOption(
                 'http3',
                 null,
                 InputOption::VALUE_NONE,

@@ -118,6 +118,16 @@ class CurlHandler
 
     private function setupProtocol(): void
     {
+        // send request via HTTP 1.1 protocol
+        if ($this->input->getOption('http11')) {
+            curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, \CURL_HTTP_VERSION_1_1);
+        }
+        
+        // send request via HTTP2 protocol
+        if ($this->input->getOption('http2')) {
+            curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, \CURL_HTTP_VERSION_2);
+        }
+
         // send request via HTTP3 protocol
         if ($this->input->getOption('http3')) {
             // constant CURL_HTTP_VERSION_3 value is 30
