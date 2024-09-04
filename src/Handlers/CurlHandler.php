@@ -59,11 +59,21 @@ class CurlHandler
 
     private function setupOptions(): void
     {
-        curl_setopt($this->handler, \CURLOPT_DNS_USE_GLOBAL_CACHE, true);
         curl_setopt($this->handler, \CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($this->handler, \CURLOPT_FRESH_CONNECT, true);
         curl_setopt($this->handler, \CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->handler, \CURLOPT_SSL_VERIFYPEER, false);
+
+        // Reuse connection
+        if ($this->input->getOption('reuse')) {
+            curl_setopt($this->handler, \CURLOPT_FRESH_CONNECT, false);
+            curl_setopt($this->handler, \CURLOPT_TCP_KEEPALIVE, 1);
+        } else {
+            curl_setopt($this->handler, \CURLOPT_FRESH_CONNECT, true);
+        }
+        
+        // DNS
+        //curl_setopt($this->handler, \CURLOPT_DNS_USE_GLOBAL_CACHE, true);
+        //curl_setopt($this->handler, \CURLOPT_DNS_LOCAL_IP4, '1.1.1.1');
 
         $this->setupUserAgent();
 

@@ -16,7 +16,7 @@ use function floatval;
 abstract class AbstractManyCommand extends AbstractCommand
 {
     protected OutputHelper $output_helper;
-    protected ServerTimingHeaderParser $server_timing_header_parser = null;
+    protected ?ServerTimingHeaderParser $server_timing_header_parser = null;
 
     protected function configure(): void
     {

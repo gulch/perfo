@@ -32,7 +32,7 @@ abstract class AbstractCommand extends Command
                 InputOption::VALUE_NONE,
                 'Set real browser User-Agent',
             )->addOption(
-                'http11',
+                'http1',
                 null,
                 InputOption::VALUE_NONE,
                 'Send request via HTTP 1.1 protocol',
@@ -46,6 +46,16 @@ abstract class AbstractCommand extends Command
                 null,
                 InputOption::VALUE_NONE,
                 'Send request via HTTP/3 protocol',
+            )->addOption(
+                'detail',
+                null,
+                InputOption::VALUE_NONE,
+                'Show more details',
+            )->addOption(
+                'reuse',
+                null,
+                InputOption::VALUE_NONE,
+                'Reuse connection',
             );
     }
 }
