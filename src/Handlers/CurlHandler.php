@@ -17,7 +17,7 @@ use function trim;
 
 class CurlHandler
 {
-    private const BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36';
+    private const BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0';
 
     private CurlHandle $handler;
     private InputInterface $input;
@@ -125,7 +125,7 @@ class CurlHandler
     private function setupProtocol(): void
     {
         // send request via HTTP 1.1 protocol
-        if ($this->input->getOption('http11')) {
+        if ($this->input->getOption('http1')) {
             curl_setopt($this->handler, \CURLOPT_HTTP_VERSION, \CURL_HTTP_VERSION_1_1);
         }
 
