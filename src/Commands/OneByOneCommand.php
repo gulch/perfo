@@ -21,7 +21,7 @@ class OneByOneCommand extends AbstractManyCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
+        $this->output_helper->outputWelcomeMessage($output, $this->getApplication());
 
         $requests_count = $input->getOption('requests');
 
@@ -44,7 +44,7 @@ class OneByOneCommand extends AbstractManyCommand
 
         $info = $curl_handlers[0]->getInfo();
 
-        $this->outputHelper->outputGeneralInfo($input, $output, $info);
+        $this->output_helper->outputGeneralInfo($input, $output, $info);
 
         $output->writeln('Execution time: ' . sprintf('%2.3f', \microtime(true) - $timestamp) . ' seconds');
 

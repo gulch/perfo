@@ -15,7 +15,8 @@ use function floatval;
 
 abstract class AbstractManyCommand extends AbstractCommand
 {
-    protected OutputHelper $outputHelper;
+    protected OutputHelper $output_helper;
+    protected ServerTimingHeaderParser $server_timing_header_parser = null;
 
     protected function configure(): void
     {
@@ -27,7 +28,7 @@ abstract class AbstractManyCommand extends AbstractCommand
 
         parent::configure();
 
-        $this->outputHelper = new OutputHelper;
+        $this->output_helper = new OutputHelper;
     }
 
     protected function outputTimings(array $curl_handlers, OutputInterface $output): void
@@ -77,12 +78,14 @@ abstract class AbstractManyCommand extends AbstractCommand
             $output->writeln('<fg=red>Failed requests: ' . $failed_requests_count . '</>');
         }
 
-        $this->outputHelper->outputTimingTable($output, $table, 'Timings (in ms)');
+        $this->output_helper->outputTimingTable($output, $table, 'Timings (in ms)');
     }
 
     protected function outputServerTimings(array $curl_handlers, OutputInterface $output): void
     {
-        $parser = new ServerTimingHeaderParser();
+        if (!$this->server_timing_header_parser) {
+            $this->server_timing_header_parser = new ServerTimingHeaderParser();
+        }
 
         $table = [];
 
@@ -102,11 +105,11 @@ abstract class AbstractManyCommand extends AbstractCommand
                 foreach ($server_timing_header as $st) {
                     $parsed_timings = [
                         ...$parsed_timings,
-                        $parser->parse($st),
+                        $this->server_timing_header_parser->parse($st),
                     ];
                 }
             } else {
-                $parsed_timings = $parser->parse($server_timing_header);
+                $parsed_timings = $this->server_timing_header_parser->parse($server_timing_header);
             }
 
             if (0 === \count($parsed_timings)) continue;
@@ -133,6 +136,6 @@ abstract class AbstractManyCommand extends AbstractCommand
             return;
         }
 
-        $this->outputHelper->outputTimingTable($output, $table, 'Server-Timing');
+        $this->output_helper->outputTimingTable($output, $table, 'Server-Timing');
     }
 }

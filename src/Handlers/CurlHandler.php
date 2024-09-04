@@ -7,7 +7,13 @@ namespace Perfo\Handlers;
 use CurlHandle;
 use Symfony\Component\Console\Input\InputInterface;
 
-use function count, curl_exec, curl_getinfo, curl_init, curl_setopt, strlen, trim;
+use function count;
+use function curl_exec;
+use function curl_getinfo;
+use function curl_init;
+use function curl_setopt;
+use function strlen;
+use function trim;
 
 class CurlHandler
 {

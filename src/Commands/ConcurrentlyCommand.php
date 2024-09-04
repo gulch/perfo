@@ -38,7 +38,7 @@ class ConcurrentlyCommand extends AbstractManyCommand
             );
         }
 
-        $this->outputHelper->outputWelcomeMessage($output, $this->getApplication());
+        $this->output_helper->outputWelcomeMessage($output, $this->getApplication());
 
         $output->writeln("Doing {$requests_count} concurrent requests...");
 
@@ -52,7 +52,7 @@ class ConcurrentlyCommand extends AbstractManyCommand
 
         $info = $curl_handlers[0]->getInfo();
 
-        $this->outputHelper->outputGeneralInfo($input, $output, $info);
+        $this->output_helper->outputGeneralInfo($input, $output, $info);
 
         $output->writeln('Execution time: ' . sprintf('%2.3f', \microtime(true) - $timestamp) . ' seconds');
 
